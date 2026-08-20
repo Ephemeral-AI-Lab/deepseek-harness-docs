@@ -2,7 +2,7 @@
 
 This document specifies the Ephemeral AI agent preset and its Codex Shell integration for DeepSeek Harness.
 
-> Baseline: DeepSeek Harness `dsh-v0.1.0-rc.8`; `dsh-codex-shell` `0.1.3`.
+> Baseline: DeepSeek Harness `dsh-v0.1.0-rc.8`; `dsh-codex-terminal` `0.1.3`.
 
 ## Tool surface
 
@@ -38,14 +38,14 @@ exec_command
     +-- remains live after yield window
             |
             +-- register ctx.jobs job
-            +-- return job_id: codex-shell-N
+            +-- return job_id: codex-terminal-N
                          |
                          +-- job_list: lifecycle status
                          +-- job_kill: terminate process
                          +-- write_stdin: send input or read unread output
 ```
 
-The `codex-shell-N` value is the only public command identifier. There is no separate numeric `session_id`.
+The `codex-terminal-N` value is the only public command identifier. There is no separate numeric `session_id`.
 
 ### Example
 
@@ -61,27 +61,27 @@ Start a command:
 Result:
 
 ```text
-[job_id: codex-shell-1]
+[job_id: codex-terminal-1]
 ```
 
 List it:
 
 ```text
-codex-shell-1 [codex-shell] running — sleep 2; printf 'DONE\n'
+codex-terminal-1 [codex-terminal] running — sleep 2; printf 'DONE\n'
 ```
 
 When it finishes, the owner receives:
 
 ```text
-exec job codex-shell-1 exited with code 0.
-Call write_stdin with job_id="codex-shell-1" and chars="" to collect the remaining output.
+exec job codex-terminal-1 exited with code 0.
+Call write_stdin with job_id="codex-terminal-1" and chars="" to collect the remaining output.
 ```
 
 Collect unread output:
 
 ```json
 {
-  "job_id": "codex-shell-1",
+  "job_id": "codex-terminal-1",
   "chars": ""
 }
 ```
@@ -90,13 +90,13 @@ Result:
 
 ```text
 DONE
-[job codex-shell-1 exited with code 0]
+[job codex-terminal-1 exited with code 0]
 ```
 
 A repeated empty poll is safe:
 
 ```text
-[job codex-shell-1 exited with code 0; no unread output remains]
+[job codex-terminal-1 exited with code 0; no unread output remains]
 ```
 
 ## Output behavior
@@ -147,8 +147,8 @@ name: Ephemeral AI Harness
 ### Relevant `agent.cordis.yml` rows
 
 ```yaml
-- id: codex-shell
-  name: 'dsh-codex-shell'
+- id: codex-terminal
+  name: 'dsh-codex-terminal'
 
 - id: tool-fs
   name: '@deepseek-ai/dsh-tool-fs'
@@ -208,16 +208,16 @@ const ALLOWED_TOOLS = [
 Install the package into the Web profile:
 
 ```sh
-dsh plugin --profile web add dsh-codex-shell@0.1.3
+dsh plugin --profile web add dsh-codex-terminal@0.1.3
 ```
 
 For local development, the profile currently links the package checkout:
 
 ```text
-/Users/yifanxu/Ephemeral-AI-Lab/dsh-plugins/codex-shell
+/Users/yifanxu/Ephemeral-AI-Lab/dsh-plugins/codex-terminal
 ```
 
-The package's bundle patch inserts a Host-level `codex-shell` row. The Web profile override disables that global row so the user preset can mount exactly one agent-scoped instance.
+The package's bundle patch inserts a Host-level `codex-terminal` row. The Web profile override disables that global row so the user preset can mount exactly one agent-scoped instance.
 
 Ordinary module HMR is disabled in the shipped Web bundle. After rebuilding Codex Shell, restart `dsh web`; editing the preset YAML alone can reload through the profile patch watcher.
 
@@ -227,7 +227,7 @@ Ordinary module HMR is disabled in the shipped Web bundle. After rebuilding Code
 2. Confirm the tool schema contains `exec_command`, `write_stdin`, `job_list`, and `job_kill`.
 3. Confirm `job_output` is absent.
 4. Run a short command and verify it returns inline output with no job ID.
-5. Run a command that exceeds `yield_time_ms` and verify it returns exactly one `codex-shell-N` job ID.
+5. Run a command that exceeds `yield_time_ms` and verify it returns exactly one `codex-terminal-N` job ID.
 6. Confirm `job_list` reports that same ID as running and then completed.
 7. Confirm the completion notice uses `job_id` and instructs `write_stdin`.
 8. Confirm the first empty `write_stdin` poll returns unread output and exit status.
@@ -240,12 +240,12 @@ Ordinary module HMR is disabled in the shipped Web bundle. After rebuilding Code
 The assembled Web profile was verified through the loopback API without browser interaction:
 
 ```text
-exec_command -> [job_id: codex-shell-1]
-job_list     -> codex-shell-1 [codex-shell] running
-notification -> write_stdin(job_id="codex-shell-1", chars="")
+exec_command -> [job_id: codex-terminal-1]
+job_list     -> codex-terminal-1 [codex-terminal] running
+notification -> write_stdin(job_id="codex-terminal-1", chars="")
 write_stdin  -> JOB_ONLY_OK + exit code 0
 write_stdin  -> no unread output remains
-job_list     -> codex-shell-1 [codex-shell] completed
+job_list     -> codex-terminal-1 [codex-terminal] completed
 ```
 
 The same request header contained no `job_output` tool and no Codex Shell `session_id` field.
