@@ -21,6 +21,8 @@ The architectural material is currently based on DeepSeek Harness
 | [Create and load a preset](how-to/create-a-preset.md) | Copy a preset, edit its Cordis composition, load it in a real session, and understand reload boundaries. |
 | [Create a background tool with jobs and notifications](how-to/create-a-background-tool-with-jobs-and-notifications.md) | Promote long-running work into `ctx.jobs`, expose one `job_id`, retain tool-owned output, wake the owning agent safely, and prevent duplicate completion delivery. |
 | [Publish npm packages](how-to/publish-npm-packages.md) | Validate identity and contents, authenticate securely, publish directly or through an existing-package stage, verify the public tarball, and recover from common registry failures. |
+| [pi-ai 0.82.1 → 0.84.2 compatibility study](how-to/pi-ai-0.82.1-to-0.84.2-compatibility-study.md) | Compare catalog, thinking, stop-reason, deferred-request, tool, replay, and Grok 4.6 changes against the DSH `llm-pi-ai` adapter. |
+| [Route DSH Codex and xAI through Veee](how-to/route-dsh-codex-and-xai-through-veee.md) | Persist the Veee `x.ai` proxy rule, route DSH/Codex/Grok through Veee, auto-load Codex authentication, and verify the complete route. |
 
 ## Documentation boundaries
 
